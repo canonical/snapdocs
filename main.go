@@ -539,6 +539,27 @@ img:not(.thumbnail) {
     max-height: 500px;
 }
 
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table thead {
+	border-bottom: 2px solid #eee;
+}
+
+table thead th {
+	padding-bottom: 2px;
+}
+
+table tr {
+	border-bottom: 1px solid #eee;
+}
+
+table td {
+	padding: 3px 3px 3px 10px;
+}
+
 </style>
 
 </head>
