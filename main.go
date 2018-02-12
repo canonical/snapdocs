@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -132,6 +133,11 @@ func sendNotFound(resp http.ResponseWriter, msg string, args ...interface{}) {
 func handler(resp http.ResponseWriter, req *http.Request) {
 	if req.Method != "GET" {
 		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	if req.URL.Path == "/icon32.png" {
+		resp.Header().Set("Content-Type", "image/png")
+		resp.Write(iconBytes)
 		return
 	}
 	if req.URL.Path == "/health-check" {
@@ -551,6 +557,8 @@ const pageTemplateString = `<!DOCTYPE html>
 <title>{{if .Topic}}{{.Topic.Title}}{{else if .Query}}{{.Query}}{{else}}Search Results{{end}} - Snap Docs</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="icon" type="image/png" href="/icon32.png" />
+
 <!--<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">-->
 
 <style>
@@ -642,7 +650,9 @@ input[type=search] {
 	border-radius: 10px;
 	border: 1px solid #ccc;
 	text-indent: 10px;
-	width: auto;
+}
+
+.sidebar .search input {
 	max-width: 200px;
 }
 
@@ -703,7 +713,7 @@ table td {
 <div class="container">
 	<div class="row">
 		<div class="index sidebar col-sm-3">
-			{{html .Logo}}
+			<div class="logo">{{html .Logo}}</div>
 			<div class="search">
 				<form method="GET" action="/search">
 					<input type="search" name="q" placeholder="&#x1f50d; Search" value="{{.Query}}">
@@ -756,6 +766,35 @@ table td {
 
 </html>
 `
+
+var iconString = `
+iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAzpJREFU
+WEfFl99LU2EYx79nZ3NuTqaJZVkLmgoJThwogw29EAZ6ZaUXCeqVg1BIMCq96kZEBQO9kRD0OiH/
+AL3IH7swcoGgNREKW7B1YW2F7Ydu+ZxxZmc7Z7+c64UxznOe5/1+3ud5znvOy+j1+jaZTPaKYZib
+yOOIRCKucDhsY6qrq7/mW5xfJ0HI/pc4QZC2jKfRarUoLi7OYxGiUjEAr9eLwcFBzMzMoLW1FQqF
+Ii8wbFlZ2QteaXNzE42NjRgZGUF3dzcqKyvh8/ngdrsvDUYAQCpra2soLS1FU1MT6urq0NnZiY6O
+DlCJPB4PKFO5HAkANPn6+joHYTAYOC0SJ6Cenh40NzejoKAALpcLfr//wiyiADwECdfX1wtEKioq
+0NLSgr6+Pi5DZ88yDg8PcXp6mhUMU1NTE0kWOTo6yoklG3Nzc/j2aRdXP27hwbVCaOWx3haEPdo9
+wtbPgMAmmQHea2NjAxqNBg0NDZIM29vbePz0GfRt9/DafQz7zh5uK4ErChYsw8R+t1RyLHuOMwMg
+b3o6ioqKJCEIgACpZCazBcb7D7ESVGP5/Q40JwHcKGQ50etKFo5fQbj85+VKmQEe1263Q61Ww2g0
+JmSCB2DZqBDtIYaz3vn85wRP3qzg7ZEfKlaGO2o5dHFZEC9WgkTUMDk5ifn5eYm7QvPi4iImJiY4
+497vEJ47f8D6zoMP3iDuas43OXlas/3jNDU1xXW+zWaTDCXx8fHxhPvfg2G8/OIT2DPKAB85OzsL
+EhEbUuJivmTLCoA2pKqqKiwsLAjmzVScglPuA/Hk9MZcXV1FSUkJqDGdTidCoRDnNj09He+e8jrj
+Hujv7+fEaZjNZnqnY2xsDAcHBynFxBwyKkF5eTl6e3sF8+zv72ctThNlBDAwMACVShUDyKbm8VlI
+G0Cn06Grqyun4hllYGhoCHJ5tGVysXJ+JWlloLa2Fu3t7VxMLsXTzsDw8DDX7bkWTwvAZDLBYrFc
+ijgBpNyIlpaW4HA4RPd2vo4X+U/aA1ar9VLFk5bg7LzIfZiKvdUusuL4WMkSKJVKBALC77f44Fxc
+y+iAKDZRPsS5wykdkaUgxMByZeOP538BRM8eI1yfKBgAAAAASUVORK5CYIIA
+`
+
+var iconBytes []byte
+
+func init() {
+	var err error
+	iconBytes, err = base64.StdEncoding.DecodeString(iconString)
+	if err != nil {
+		panic(err)
+	}
+}
 
 var logoString = `
 <svg
