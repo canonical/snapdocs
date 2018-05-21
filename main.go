@@ -452,6 +452,7 @@ var (
 	indexPageID    = 0
 	indexPageSep   = "<h1>Content</h1>"
 	indexPageTitle = "Welcome"
+	editorsNote = regexp.MustCompile(`(?s)<blockquote.*?<img[^>]+title=":construction:".*?</blockquote>`)
 )
 
 func init() {
@@ -488,6 +489,9 @@ func renderPage(resp http.ResponseWriter, req *http.Request, topic *Topic, resul
 			data.Content = data.Content[:sep]
 		}
 	}
+
+	data.Content = editorsNote.ReplaceAllString(data.Content, "")
+	data.Index = editorsNote.ReplaceAllString(data.Index, "")
 
 	err = pageTemplate.Execute(resp, data)
 	if err != nil {
